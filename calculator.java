@@ -4,11 +4,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class calculator implements ActionListener {
+
     JFrame jf;
     JLabel display;
     JButton allClearButton, percentButton, clearButton, divisionButton, sevenButton, eightButton, nineButton, multiplicationButton,
     fourButton, fiveButton, sixButton, minusButton, oneButton, twoButton, threeButton, plusButton, doubleZeroButton, zeroButton,
     pointButton, equalButton;
+
+    boolean isOperatorClicked = false;
 
     calculator(){
         jf = new JFrame("Calculator");
@@ -41,7 +44,7 @@ public class calculator implements ActionListener {
         clearButton.addActionListener(this);
         jf.add(clearButton);
 
-        divisionButton = new JButton("/");
+        divisionButton = new JButton("÷");
         divisionButton.setBounds(245, 150, 50, 50);
         divisionButton.addActionListener(this);
         jf.add(divisionButton);
@@ -184,6 +187,39 @@ public class calculator implements ActionListener {
 
         else if(e.getSource()==pointButton){
             display.setText(display.getText()+".");
+        }
+
+        else if(e.getSource()==allClearButton){
+            display.setText("");
+        }
+
+        else if(e.getSource()==percentButton){
+            display.setText(display.getText()+" % ");
+        }
+
+        else if(e.getSource()==clearButton){
+            
+        }
+
+        else if(e.getSource()==divisionButton){
+            display.setText(display.getText()+" / ");
+        }
+
+        else if(e.getSource()==multiplicationButton){
+            display.setText(display.getText()+" X ");
+        }
+
+        else if(e.getSource()==minusButton){
+            display.setText(display.getText()+" - ");
+        }
+
+        else if(e.getSource()==plusButton){
+            display.setText(display.getText()+" + ");
+            isOperatorClicked = true;
+        }
+
+        else if(e.getSource()==equalButton){
+            
         }
 
     }
