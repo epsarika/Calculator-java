@@ -2,16 +2,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Stack;
 
 public class calculator implements ActionListener {
 
     JFrame jf;
     JLabel display;
     JButton allClearButton, percentButton, clearButton, divisionButton, sevenButton, eightButton, nineButton, multiplicationButton,
-    fourButton, fiveButton, sixButton, minusButton, oneButton, twoButton, threeButton, plusButton, doubleZeroButton, zeroButton,
-    pointButton, equalButton;
+            fourButton, fiveButton, sixButton, minusButton, oneButton, twoButton, threeButton, plusButton, doubleZeroButton, zeroButton,
+            pointButton, equalButton;
 
-    boolean isOperatorClicked = false;
+    StringBuilder currentExpression = new StringBuilder();
 
     calculator(){
         jf = new JFrame("Calculator");
@@ -26,7 +27,6 @@ public class calculator implements ActionListener {
         display.setForeground(Color.white);
         jf.add(display);
 
-        
         allClearButton = new JButton("AC");
         allClearButton.setBounds(35, 150, 50, 50);
         allClearButton.addActionListener(this);
@@ -129,98 +129,106 @@ public class calculator implements ActionListener {
         equalButton.addActionListener(this);
         jf.add(equalButton);
 
-
         jf.setVisible(true);
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
-
 
     public static void main(String args[]){
         new calculator();
     }
 
     public void actionPerformed(ActionEvent e){
+        Object source = e.getSource();
+        String currentText = display.getText();
 
-        if(e.getSource()==sevenButton){
-            display.setText(display.getText()+"7");
-        }
-
-        else if(e.getSource()==eightButton){
-            display.setText(display.getText()+"8");
-        }
-
-        else if(e.getSource()==nineButton){
-            display.setText(display.getText()+"9");
-        }
-
-        else if(e.getSource()==fourButton){
-            display.setText(display.getText()+"4");
-        }
-
-        else if(e.getSource()==fiveButton){
-            display.setText(display.getText()+"5");
-        }
-
-        else if(e.getSource()==sixButton){
-            display.setText(display.getText()+"6");
-        }
-
-        else if(e.getSource()==oneButton){
-            display.setText(display.getText()+"1");
-        }
-
-        else if(e.getSource()==twoButton){
-            display.setText(display.getText()+"2");
-        }
-
-        else if(e.getSource()==threeButton){
-            display.setText(display.getText()+"3");
-        }
-
-        else if(e.getSource()==doubleZeroButton){
-            display.setText(display.getText()+"00");
-        }
-        
-        else if(e.getSource()==zeroButton){
-            display.setText(display.getText()+"0");
-        }
-
-        else if(e.getSource()==pointButton){
-            display.setText(display.getText()+".");
-        }
-
-        else if(e.getSource()==allClearButton){
+        if(source == allClearButton){
             display.setText("");
+            currentExpression.setLength(0);
+        } else if (source == percentButton) {
+            currentExpression.append(currentText).append("%");
+            display.setText("");
+        } else if (source == clearButton) {
+            // Remove last character
+            if (currentText.length() > 0) {
+                display.setText(currentText.substring(0, currentText.length() - 1));
+            }
+        } else if (source == divisionButton) {
+            currentExpression.append(currentText).append("/");
+            display.setText("");
+        } else if (source == multiplicationButton) {
+            currentExpression.append(currentText).append("*");
+            display.setText("");
+        } else if (source == minusButton) {
+            currentExpression.append(currentText).append("-");
+            display.setText("");
+        } else if (source == plusButton) {
+            currentExpression.append(currentText).append("+");
+            display.setText("");
+        } else if (source == equalButton) {
+            currentExpression.append(currentText);
+            String result = evaluate(currentExpression.toString());
+            display.setText(result);
+            currentExpression.setLength(0);
+        } else {
+            JButton clickedButton = (JButton) source;
+            display.setText(currentText + clickedButton.getText());
+        }
+    }
+
+    private String evaluate(String expression) {
+        Stack<Float> numbers = new Stack<>();
+        Stack<Character> operations = new Stack<>();
+        int i = 0;
+        while (i < expression.length()) {
+            char c = expression.charAt(i);
+            if (Character.isDigit(c)) {
+                StringBuilder sb = new StringBuilder();
+                while (i < expression.length() && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.')) {
+                    sb.append(expression.charAt(i));
+                    i++;
+                }
+                numbers.push(Float.parseFloat(sb.toString()));
+                i--;
+            } else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%') {
+                while (!operations.isEmpty() && hasPrecedence(c, operations.peek())) {
+                    numbers.push(applyOperation(operations.pop(), numbers.pop(), numbers.pop()));
+                }
+                operations.push(c);
+            }
+            i++;
         }
 
-        else if(e.getSource()==percentButton){
-            display.setText(display.getText()+" % ");
+        while (!operations.isEmpty()) {
+            numbers.push(applyOperation(operations.pop(), numbers.pop(), numbers.pop()));
         }
 
-        else if(e.getSource()==clearButton){
-            
-        }
+        return String.valueOf(numbers.pop());
+    }
 
-        else if(e.getSource()==divisionButton){
-            display.setText(display.getText()+" / ");
+    private boolean hasPrecedence(char op1, char op2) {
+        if ((op1 == '*' || op1 == '/' || op1 == '%') && (op2 == '+' || op2 == '-')) {
+            return false;
+        } else {
+            return true;
         }
+    }
 
-        else if(e.getSource()==multiplicationButton){
-            display.setText(display.getText()+" X ");
+    private float applyOperation(char op, float b, float a) {
+        switch (op) {
+            case '+':
+                return a + b;
+            case '-':
+                return a - b;
+            case '*':
+                return a * b;
+            case '/':
+                if (b == 0) {
+                    throw new UnsupportedOperationException("Cannot divide by zero");
+                }
+                return a / b;
+            case '%':
+                return (a * b) / 100;
         }
-
-        else if(e.getSource()==minusButton){
-            display.setText(display.getText()+" - ");
-        }
-
-        else if(e.getSource()==plusButton){
-            display.setText(display.getText()+" + ");
-            isOperatorClicked = true;
-        }
-
-        else if(e.getSource()==equalButton){
-            
-        }
-
+        return 0;
     }
 }
