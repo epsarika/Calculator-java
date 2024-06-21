@@ -13,6 +13,8 @@ public class calculator implements ActionListener {
             pointButton, equalButton;
 
     StringBuilder currentExpression = new StringBuilder();
+    String storedCurrentText = ""; // Variable to store the current text
+    boolean isEqualButtonClicked = false;
 
     calculator(){
         jf = new JFrame("Calculator");
@@ -230,6 +232,8 @@ public class calculator implements ActionListener {
 
         equalButton = new JButton("=");
         equalButton.setBounds(245, 430, 50, 50);
+        equalButton.setBackground(Color.darkGray);
+        equalButton.setForeground(Color.WHITE);
         equalButton.setBorderPainted(false);
         equalButton.setFocusPainted(false);
         equalButton.setFont(buttonFont1);
@@ -255,10 +259,15 @@ public class calculator implements ActionListener {
         } else if (source == percentButton) {
             display.setText(currentText + "%");
         } else if (source == clearButton) {
-            secondaryLabel.setText("");
-            // Remove last character
-            if (currentText.length() > 0) {
-                display.setText(currentText.substring(0, currentText.length() - 1));
+            if (isEqualButtonClicked) {
+                display.setText(storedCurrentText); // Replace with stored current text
+                secondaryLabel.setText("");
+                isEqualButtonClicked = false;
+            } else {
+                // Remove last character
+                if (currentText.length() > 0) {
+                    display.setText(currentText.substring(0, currentText.length() - 1));
+                }
             }
         } else if (source == divisionButton) {
             display.setText(currentText + "/");
@@ -269,6 +278,8 @@ public class calculator implements ActionListener {
         } else if (source == plusButton) {
             display.setText(currentText + "+");
         } else if (source == equalButton) {
+            isEqualButtonClicked = true;
+            storedCurrentText = currentText; // Store current text before evaluation
             currentExpression.append(currentText);
             secondaryLabel.setText(currentText);  // Append the whole expression at once
             String result = evaluate(currentExpression.toString());
